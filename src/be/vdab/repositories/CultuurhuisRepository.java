@@ -4,38 +4,64 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import be.vdab.entities.Genre;
+import be.vdab.entities.Klant;
 import be.vdab.entities.Reservatie;
 import be.vdab.entities.Voorstelling;
 
 public class CultuurhuisRepository extends AbstractRepository {
+	
+	private static final String SELECT_GENRES = "select id, naam from genres";
 
 	private static final String SELECT_VOORSTELLINGEN_GENRE = "select voorstellingen.id as 'id', "
-			+ "titel, datum, genreid, prijs, vrijeplaatsen "
-			+ "from voorstellingen inner join genres voorstellingen.genreid = genres.id where genres.naam=?";
+			+ "titel, uitvoerders, datum, genreid, prijs, vrijeplaatsen "
+			+ "from voorstellingen inner join genres on voorstellingen.genreid = genres.id where genres.id=?";
 
-	// private static final String SELECT_VOORSTELLINGEN_VRIJEPLAATSEN = "select
-	// vrijeplaatsen from voorstellingen where id=?";
 	private static final String INSERT_RESERVATIE = "insert into reservaties (klantid, voorstellingsid, plaatsen) "
 			+ "values (?,?,?)";
 	private static final String UPDATE_VOORSTELLINGEN_VRIJEPLAATSEN_VOORWAARDE = "update voorstellingen "
 			+ "set vrijeplaatsen = vrijeplaatsen-? where ( vrijeplaatsen>=? and id=?)";
 
-	private static final String SELECT_KLANTEN_GEBRUIKERSNAAM = "select * from klanten " + "where gebruikersnaam=?";
+	private static final String SELECT_KLANTEN_GEBRUIKERSNAAM = "select id, voornaam, familienaam, straat, "
+			+ "huinr, postcode, gemeente, gebruikersnaam, paswoord from klanten where gebruikersnaam=?";
 	private static final String INSERT_KLANT = "insert into klanten "
 			+ "(voornaam, familienaam, straat, huisnr, postcode, gemeente, gebruikersnaam, paswoord) "
 			+ "values (?,?,?,?,?,?,?,?)";
+	
+	public List<Genre> getGenres(){
+		try(Connection connection = dataSource.getConnection();
+				Statement statement = connection.createStatement()){
+			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+			connection.setAutoCommit(false);
+			List<Genre> lijstGenres = new ArrayList<>();
+			try(ResultSet resultSet = statement.executeQuery(SELECT_GENRES)){
+				while (resultSet.next()) {
+					lijstGenres.add(resultSetRijNaarGenre(resultSet));
+				}
+			}
+			connection.commit();
+			return lijstGenres;
+		} catch (SQLException ex) {
+			throw new RepositoryException(ex);
+		}
+	}
+	
+	private Genre resultSetRijNaarGenre(ResultSet resultSet) throws SQLException{
+		return Genre.genreUitDatabase(resultSet.getLong("id"), resultSet.getString("naam"));
+	}
 
-	public List<Voorstelling> getVoorstellingenGenre(String naamGenre) {
+	public List<Voorstelling> getVoorstellingenGenre(long idGenre) {
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement statement = connection.prepareStatement(SELECT_VOORSTELLINGEN_GENRE)) {
 			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 			connection.setAutoCommit(false);
-			statement.setString(1, naamGenre);
+			statement.setLong(1, idGenre);
 			List<Voorstelling> lijstVoorstellingen = new ArrayList<>();
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next()) {
@@ -51,9 +77,14 @@ public class CultuurhuisRepository extends AbstractRepository {
 	}
 
 	private Voorstelling resultSetRijNaarVoorstelling(ResultSet resultSet) throws SQLException {
-		return Voorstelling.voorstellingUitDatabase(resultSet.getLong("id"), resultSet.getString("titel"),
-				resultSet.getString("uitvoerders"), resultSet.getTimestamp("datum").toLocalDateTime(),
-				resultSet.getLong("genreid"), resultSet.getBigDecimal("prijs"), resultSet.getLong("vrijeplaatsen"));
+		return Voorstelling.voorstellingUitDatabase(
+				resultSet.getLong("id"), 
+				resultSet.getString("titel"),
+				resultSet.getString("uitvoerders"), 
+				resultSet.getTimestamp("datum").toLocalDateTime(),
+				resultSet.getLong("genreid"), 
+				resultSet.getBigDecimal("prijs"), 
+				resultSet.getLong("vrijeplaatsen"));
 	}
 
 	public List<Integer> reservatiesBoeken(ArrayList<Reservatie> reservatieLijst) {
@@ -69,7 +100,9 @@ public class CultuurhuisRepository extends AbstractRepository {
 				statement.addBatch();
 			}
 			List<Integer> reservatiesGeboektLijst = new ArrayList<Integer>(
-					Arrays.stream(statement.executeBatch()).boxed().collect(Collectors.toList()));
+					Arrays.stream(statement.executeBatch())
+							.boxed()
+							.collect(Collectors.toList()));
 			if (reservatiesGeboektLijst.contains((Integer) 1)) {
 				try (PreparedStatement statement2 = connection.prepareStatement(INSERT_RESERVATIE)) {
 					for (Integer geboekt : reservatiesGeboektLijst) {
@@ -85,11 +118,75 @@ public class CultuurhuisRepository extends AbstractRepository {
 					}
 				}
 			}
-
+			connection.commit();
 			return reservatiesGeboektLijst;
 		} catch (SQLException ex) {
 			throw new RepositoryException(ex);
 		}
 	}
+	
+	public Klant zoekKlant(String gebruikersnaam) {
+		try (Connection connection = dataSource.getConnection();
+				PreparedStatement statement = connection.prepareStatement(SELECT_KLANTEN_GEBRUIKERSNAAM)){
+			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+			connection.setAutoCommit(false);
+			statement.setString(1, gebruikersnaam);
+			Klant klant = new Klant();
+			try (ResultSet resultSet = statement.executeQuery()){
+				while (resultSet.next()) {
+					klant = resultSetRijNaarKlant(resultSet);
+				}
+			}
+			connection.commit();
+			return klant;
+			
+		} catch (SQLException ex) {
+			throw new RepositoryException(ex);
+		}
+	}
+	
+	private Klant resultSetRijNaarKlant(ResultSet resultSet) throws SQLException {
+		return Klant.klantUitDatabase(
+				resultSet.getLong("id"), 
+				resultSet.getString("voornaam"),
+				resultSet.getString("familienaam"),
+				resultSet.getString("straat"), 
+				resultSet.getString("huisnr"), 
+				resultSet.getString("postcode"), 
+				resultSet.getString("gemeente"), 
+				resultSet.getString("gebruikersnaam"), 
+				resultSet.getString("paswoord"));
+	}
 
+	public boolean klantToevoegenDatabase(Klant klant) {
+		try (Connection connection = dataSource.getConnection();
+				PreparedStatement statement = connection.prepareStatement(SELECT_KLANTEN_GEBRUIKERSNAAM)){
+			connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+			connection.setAutoCommit(false);
+			statement.setString(1, klant.getGebruikersnaam());
+			try (ResultSet resultSet = statement.executeQuery()){
+				if (resultSet.next()) {
+					connection.commit();
+					return false;
+				} else {
+					try(PreparedStatement statement2 = connection.prepareStatement(INSERT_KLANT)){
+						statement2.setString(1, klant.getVoornaam());
+						statement2.setString(2, klant.getFamilienaam());
+						statement2.setString(3, klant.getStraat());
+						statement2.setString(4, klant.getHuisnr());
+						statement2.setString(5, klant.getPostcode());
+						statement2.setString(6, klant.getGemeente());
+						statement2.setString(7, klant.getGebruikersnaam());
+						statement2.setString(8, klant.getPaswoord());
+						statement2.executeQuery();
+						connection.commit();
+						return true;
+					}
+				}
+			}
+		} catch (SQLException ex) {
+				throw new RepositoryException(ex);
+		}
+	}
+	
 }

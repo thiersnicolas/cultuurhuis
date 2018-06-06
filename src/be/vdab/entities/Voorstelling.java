@@ -12,6 +12,8 @@ private long genreid;
 private BigDecimal prijs;
 private long aantalVrijePlaatsen;
 
+public Voorstelling() {}
+
 /***
 	vanuit db
 */
@@ -75,6 +77,34 @@ public BigDecimal getPrijs() {
 
 public long getAantalVrijePlaatsen() {
 	return aantalVrijePlaatsen;
+}
+
+public void setId(long id) {
+	this.id = id;
+}
+
+public void setTitel(String titel) {
+	this.titel = titel;
+}
+
+public void setUitvoerders(String uitvoerders) {
+	this.uitvoerders = uitvoerders;
+}
+
+public void setDatum(LocalDateTime datum) {
+	this.datum = datum;
+}
+
+public void setGenreid(long genreid) {
+	this.genreid = genreid;
+}
+
+public void setPrijs(BigDecimal prijs) {
+	this.prijs = prijs;
+}
+
+public void setAantalVrijePlaatsen(long aantalVrijePlaatsen) {
+	this.aantalVrijePlaatsen = aantalVrijePlaatsen;
 }
 
 }

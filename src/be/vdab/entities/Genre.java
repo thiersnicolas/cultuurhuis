@@ -5,6 +5,8 @@ private long id;
 private String naam;
 
 
+public Genre() {}
+
 /***
 	vanuit db
  */
@@ -13,7 +15,7 @@ private Genre(long id, String naam) {
 	this.naam = naam;
 }
 
-public Genre genreUitDatabase(long id, String naam) {
+public static Genre genreUitDatabase(long id, String naam) {
 	return new Genre(id, naam);
 }
 
@@ -24,7 +26,7 @@ private Genre(String naam) {
 	this.naam = naam;
 }
 
-public Genre genreNieuw(String naam) {
+public static Genre genreNieuw(String naam) {
 	return new Genre(naam);
 }
 
@@ -34,6 +36,14 @@ public long getId() {
 
 public String getNaam() {
 	return naam;
+}
+
+public void setId(long id) {
+	this.id = id;
+}
+
+public void setNaam(String naam) {
+	this.naam = naam;
 }
 
 }

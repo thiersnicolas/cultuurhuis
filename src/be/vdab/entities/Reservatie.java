@@ -6,6 +6,8 @@ private long klantid;
 private long voorstellingsid;
 private long aantalPlaatsen;
 
+public Reservatie() {}
+
 /***
 	vanuit db
 */
@@ -47,6 +49,22 @@ public long getVoorstellingsid() {
 
 public long getAantalPlaatsen() {
 	return aantalPlaatsen;
+}
+
+public void setId(long id) {
+	this.id = id;
+}
+
+public void setKlantid(long klantid) {
+	this.klantid = klantid;
+}
+
+public void setVoorstellingsid(long voorstellingsid) {
+	this.voorstellingsid = voorstellingsid;
+}
+
+public void setAantalPlaatsen(long aantalPlaatsen) {
+	this.aantalPlaatsen = aantalPlaatsen;
 }
 
 }
