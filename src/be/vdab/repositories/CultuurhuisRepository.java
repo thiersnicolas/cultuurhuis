@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import be.vdab.entities.Genre;
@@ -34,12 +36,15 @@ public class CultuurhuisRepository extends AbstractRepository {
 			+ "(voornaam, familienaam, straat, huisnr, postcode, gemeente, gebruikersnaam, paswoord) "
 			+ "values (?,?,?,?,?,?,?,?)";
 	
-	public List<Genre> getGenres(){
+	private static final String SELECT_VOORSTELLING_ID = "select id, titel, uitvoerders, datum, genreid, prijs, vrijeplaatsen"
+			+ " from voorstellingen where id=?";
+	
+	public Set<Genre> getGenres(){
 		try(Connection connection = dataSource.getConnection();
 				Statement statement = connection.createStatement()){
 			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 			connection.setAutoCommit(false);
-			List<Genre> lijstGenres = new ArrayList<>();
+			Set<Genre> lijstGenres = new TreeSet<>();
 			try(ResultSet resultSet = statement.executeQuery(SELECT_GENRES)){
 				while (resultSet.next()) {
 					lijstGenres.add(resultSetRijNaarGenre(resultSet));
@@ -56,13 +61,13 @@ public class CultuurhuisRepository extends AbstractRepository {
 		return Genre.genreUitDatabase(resultSet.getLong("id"), resultSet.getString("naam"));
 	}
 
-	public List<Voorstelling> getVoorstellingenGenre(long idGenre) {
+	public Set<Voorstelling> getVoorstellingenGenre(long idGenre) {
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement statement = connection.prepareStatement(SELECT_VOORSTELLINGEN_GENRE)) {
 			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 			connection.setAutoCommit(false);
 			statement.setLong(1, idGenre);
-			List<Voorstelling> lijstVoorstellingen = new ArrayList<>();
+			Set<Voorstelling> lijstVoorstellingen = new TreeSet<>();
 			try (ResultSet resultSet = statement.executeQuery()) {
 				while (resultSet.next()) {
 					lijstVoorstellingen.add(resultSetRijNaarVoorstelling(resultSet));
@@ -186,6 +191,25 @@ public class CultuurhuisRepository extends AbstractRepository {
 			}
 		} catch (SQLException ex) {
 				throw new RepositoryException(ex);
+		}
+	}
+	
+	public Voorstelling getVoorstelling(Long id) {
+		try(Connection connection = dataSource.getConnection();
+				PreparedStatement statement = connection.prepareStatement(SELECT_VOORSTELLING_ID)){
+			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+			connection.setAutoCommit(false);
+			Voorstelling voorstelling = new Voorstelling();
+			statement.setLong(1, id);
+			try (ResultSet resultSet = statement.executeQuery()){
+				while (resultSet.next()) {
+					voorstelling = resultSetRijNaarVoorstelling(resultSet);
+				}
+			}
+			connection.commit();
+			return voorstelling;
+		} catch (SQLException ex) {
+			throw new RepositoryException(ex);
 		}
 	}
 	

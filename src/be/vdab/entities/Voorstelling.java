@@ -3,7 +3,7 @@ package be.vdab.entities;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class Voorstelling {
+public class Voorstelling implements Comparable<Voorstelling>{
 private long id;
 private String titel;
 private String uitvoerders;
@@ -106,5 +106,53 @@ public void setPrijs(BigDecimal prijs) {
 public void setAantalVrijePlaatsen(long aantalVrijePlaatsen) {
 	this.aantalVrijePlaatsen = aantalVrijePlaatsen;
 }
+
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((datum == null) ? 0 : datum.hashCode());
+	result = prime * result + ((titel == null) ? 0 : titel.hashCode());
+	result = prime * result + ((uitvoerders == null) ? 0 : uitvoerders.hashCode());
+	return result;
+}
+
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	Voorstelling other = (Voorstelling) obj;
+	if (datum == null) {
+		if (other.datum != null)
+			return false;
+	} else if (!datum.equals(other.datum))
+		return false;
+	if (titel == null) {
+		if (other.titel != null)
+			return false;
+	} else if (!titel.equals(other.titel))
+		return false;
+	if (uitvoerders == null) {
+		if (other.uitvoerders != null)
+			return false;
+	} else if (!uitvoerders.equals(other.uitvoerders))
+		return false;
+	return true;
+}
+
+@Override
+public int compareTo(Voorstelling o) {
+	if (this.equals(o)) {
+		return 0;
+	} else {
+	return this.datum.compareTo(o.getDatum());
+	}
+}
+
+
 
 }

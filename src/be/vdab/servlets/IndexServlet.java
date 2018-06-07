@@ -1,7 +1,7 @@
 package be.vdab.servlets;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -14,7 +14,8 @@ import javax.sql.DataSource;
 import be.vdab.entities.Genre;
 import be.vdab.entities.Voorstelling;
 import be.vdab.repositories.CultuurhuisRepository;
-import util.StringUtiles;
+import util.*;
+
 
 /**
  * Servlet implementation class IndexServlet
@@ -34,22 +35,21 @@ public class IndexServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	List<Genre> lijstGenres = cultuurhuisRepository.getGenres();
-	request.setAttribute("genres", lijstGenres);
+	Set<Genre> setGenres = cultuurhuisRepository.getGenres();
+	request.setAttribute("genres", setGenres);
 	
 	String id = request.getParameter("id");
-	System.out.println(id);
 	if (id!=null) {
 		if (StringUtiles.isLong(id)) {
-			List <Voorstelling> lijstVoorstellingenGenre = cultuurhuisRepository.getVoorstellingenGenre(Long.parseLong(id));
-			request.setAttribute("lijstvoorstellingengenre", lijstVoorstellingenGenre);
-			for (Genre genre:lijstGenres) {
+			Set <Voorstelling> setVoorstellingenGenre = cultuurhuisRepository.getVoorstellingenGenre(Long.parseLong(id));
+			request.setAttribute("setvoorstellingengenre", Util.enkelToekomstigeVoorstellingen(setVoorstellingenGenre));
+			for (Genre genre:setGenres) {
 				if (genre.getId()==Long.parseLong(id)) {
 					request.setAttribute("genrenaam", genre.getNaam());
 				}
 			}
 		} else {
-			request.setAttribute("fout", "id is niet correct");
+			request.setAttribute("fout", "genre id is niet correct");
 		}
 	}
 	
