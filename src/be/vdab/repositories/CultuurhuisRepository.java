@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -40,7 +41,6 @@ public class CultuurhuisRepository extends AbstractRepository {
 			+ " from voorstellingen where id=?";
 	
 	public Set<Genre> getGenres(){
-		System.out.println(dataSource==null);
 		try(Connection connection = dataSource.getConnection();
 				Statement statement = connection.createStatement()){
 			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
@@ -209,6 +209,29 @@ public class CultuurhuisRepository extends AbstractRepository {
 			}
 			connection.commit();
 			return voorstelling;
+		} catch (SQLException ex) {
+			throw new RepositoryException(ex);
+		}
+	}
+	
+	public Set<Voorstelling> getVoorstellingen(Set<Long> ids) {
+		try(Connection connection = dataSource.getConnection();
+				PreparedStatement statement = connection.prepareStatement(SELECT_VOORSTELLING_ID)){
+			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+			connection.setAutoCommit(false);
+			Set<Voorstelling> voorstellingSet = new LinkedHashSet<>();
+			for (Long id:ids) {
+				statement.setLong(1, id);
+				try (ResultSet resultSet = statement.executeQuery()){
+					while (resultSet.next()) {
+						voorstellingSet.add(resultSetRijNaarVoorstelling(resultSet));
+						
+					}
+				}
+				
+			}
+			connection.commit();
+			return voorstellingSet;
 		} catch (SQLException ex) {
 			throw new RepositoryException(ex);
 		}

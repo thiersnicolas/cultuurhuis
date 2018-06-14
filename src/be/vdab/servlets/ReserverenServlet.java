@@ -1,6 +1,8 @@
 package be.vdab.servlets;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -22,9 +24,9 @@ import util.StringUtiles;
 public class ReserverenServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String VIEW = "/WEB-INF/JSP/reserveren.jsp";
-	private static final String VIEW_SLECHTE_ID = "/WEB-INF/JSP/index.jsp";
-	//private static final String VIEW_GERESERVEERD = "/WEB-INF/JSP/reservatiemandje.jsp";
+	private static final String REDIRECT_URL = "/reservatiemandje";
 	private CultuurhuisRepository cultuurhuisRepository = new CultuurhuisRepository();
+	private static final String MANDJE = "mandje";
 	
 	@Resource(name = CultuurhuisRepository.JNDI_NAME)
 	void setDataSource(DataSource dataSource) {
@@ -35,22 +37,33 @@ public class ReserverenServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Voorstelling voorstelling = new Voorstelling();
+		HttpSession session = request.getSession(false);
+		
+		if(session!=null) {
+			request.setAttribute("eerdereReservatie", true);
+		}
+		
 		if (StringUtiles.isLong(request.getParameter("id"))) {
+			Voorstelling voorstelling;
 			Long voorstellingid = Long.parseLong((request.getParameter("id")));
 			voorstelling = cultuurhuisRepository.getVoorstelling(voorstellingid);
-			if (voorstelling != null) {
-	//			HttpSession session = request.getSession();
-	//			session.setAttribute("voorstellingid", voorstelling.getId());
+			if (voorstelling.getTitel()!=null) {
 				request.setAttribute("voorstelling", voorstelling);
 				request.getRequestDispatcher(VIEW).forward(request, response);
+				if (session!=null) {
+					@SuppressWarnings({ "unchecked" })
+					Map<Long, Long> mandje = (Map<Long, Long>) session.getAttribute(MANDJE);
+					if (mandje.containsKey(voorstellingid)) {
+						request.setAttribute("plaatsenEerdereReservatie", mandje.get(voorstellingid));
+					}
+				}
 			} else {
-				request.setAttribute("fout", "voorstellingsid is niet correct");
-				request.getRequestDispatcher(VIEW_SLECHTE_ID).forward(request, response);
+				request.setAttribute("foutid", "voorstellingsid is niet correct");
+				request.getRequestDispatcher(VIEW).forward(request, response);
 			}
 		} else {
-			request.setAttribute("fout", "voorstellingsid is niet correct");
-			request.getRequestDispatcher(VIEW_SLECHTE_ID).forward(request, response);
+			request.setAttribute("foutid", "voorstellingsid is niet correct");
+			request.getRequestDispatcher(VIEW).forward(request, response);
 		}
 	}
 
@@ -58,24 +71,35 @@ public class ReserverenServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (request.getParameter("reserveren")!=null) {
-			reserveren(request, response);
+		Long voorstellingid = Long.parseLong((request.getParameter("id")));
+		Voorstelling voorstelling = cultuurhuisRepository.getVoorstelling(voorstellingid);
+		if (StringUtiles.isLong(request.getParameter("plaatsen"))) {
+			reserveren(request, response, voorstelling);
+			
+		} else {
+		request.setAttribute("foutplaatsen", "isLong = false");
+		request.setAttribute("voorstelling", voorstelling);
+		request.getRequestDispatcher(VIEW).forward(request, response);
 		}
 	}
 	
-	private void reserveren(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (StringUtiles.isLong(request.getParameter("plaatsen"))){
+	private void reserveren(HttpServletRequest request, HttpServletResponse response, Voorstelling voorstelling) throws ServletException, IOException {
+		Long voorstellingid = Long.parseLong((request.getParameter("id")));
+		if (voorstelling.getAantalVrijePlaatsen()>=Long.parseLong(request.getParameter("plaatsen"))){
 			HttpSession session = request.getSession();
-			Long voorstellingId = (Long) session.getAttribute("voorstellingid");
-			Voorstelling voorstelling = cultuurhuisRepository.getVoorstelling(voorstellingId);
 			Long plaatsen = Long.parseLong(request.getParameter("plaatsen"));
-			if (voorstelling != null && plaatsen<=voorstelling.getAantalVrijePlaatsen()) {
-				
-			}
-		} else {
+			Map<Long, Long> mandje = new HashMap<>();
+			mandje.put(voorstellingid, plaatsen);
+			session.setAttribute(MANDJE, mandje);
+			response.sendRedirect(request.getContextPath() + REDIRECT_URL);
 			
+			
+		} else {
+			request.setAttribute("foutplaatsen", "plaatsen > aantalvrijeplaatsen");
+			request.setAttribute("voorstelling", voorstelling);
+			request.getRequestDispatcher(VIEW).forward(request, response);
 		}
 		
 	}
-
+	
 }

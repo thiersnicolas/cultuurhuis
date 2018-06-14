@@ -1,3 +1,13 @@
+dd.attribuut {
+	font-weight: bold;
+	margin-left: 0;
+	margin-bottom: 1em;
+}
+
+input[type=number]{
+    width: 45px;
+}
+
 table.voorstellingen {
 	border-collapse: collapse;
 }
@@ -18,13 +28,3 @@ tbody.zebra tr:nth-child(even) {
 td.vrijeplaatsen {
 	text-align: right;
 }
-
-dd.attribuut {
-	font-weight: bold;
-	margin-left: 0;
-	margin-bottom: 1em;
-}
-
-input[type=number]{
-    width: 45px;
-} 
