@@ -10,38 +10,34 @@
 </head>
 <body>
 	<H1>
-		Het Cultuurhuis:Reserveren <img
+		Het Cultuurhuis:reserveren <img
 			src='<c:url value="/images/reserveren.png"/>' alt='reserveren' />
 	</H1>
-	<a href='/index'>Voorstellingen</a>
-	
-	<div>
-	<h3>Voorstelling:</h3>
-	<h3 class='attribuut'>${voorstelling.titel}</h3>
-	</div>
-	<div>
-	<h3>Uitvoerders:</h3>
-	<h3 class='attribuut'>${voorstelling.uitvoerders}</h3>
-	</div>
-	<div>
-	<h3>Datum</h3>
-	<fmt:parseDate value='${voorstelling.datum}' type='both' pattern="yyyy-MM-dd'T'HH:mm" var="datumAlsDate"/>
-	<h3 class='attribuut'><fmt:formatDate value='${datumAlsDate}' type='both' pattern='d-MM-yy HH:mm'/></h3>
-	</div>
-	<div>
-	<h3 class='attribuut'>Prijs:</h3>
-	<h3><fmt:formatNumber value='${voorstelling.prijs}' type='currency' currencySymbol="€"/></h3>
-	</div>
-	<div>
-	<h3>Vrije plaatsen:</h3>
-	<h3 class='attribuut'>${voorstelling.aantalVrijePlaatsen}</h3>
-	</div>
+	<a href='/index.htm'>Voorstellingen</a>
 	<form method="post">
-	<div>
-	<h3>Plaatsen</h3>
-	<input name="plaatsen" type="number" min='1' required step="1">
-	</div>
-	<input type="submit" value="Reserveren">
+	<dl>
+	<dt>Voorstelling:</dt>
+	<dd class='attribuut'>${voorstelling.titel}</dd>
+	
+	<dt>Uitvoerders:</dt>
+	<dd class='attribuut'>${voorstelling.uitvoerders}</dd>
+
+	<dt>Datum</dt>
+	<fmt:parseDate value='${voorstelling.datum}' type='both' pattern="yyyy-MM-dd'T'HH:mm" var="datumAlsDate"/>
+	<dd class='attribuut'><fmt:formatDate value='${datumAlsDate}' type='both' pattern='d-MM-yy HH:mm'/></dd>
+
+	<dt>Prijs:</dt>
+	<dd class='attribuut'><fmt:formatNumber value='${voorstelling.prijs}' type='currency' currencySymbol="€"/></dd>
+
+	<dt>Vrije Plaatsen:</dt>
+	<dd class='attribuut'>${voorstelling.aantalVrijePlaatsen}</dd>
+
+
+	<dt>Plaatsen:</dt>
+	<dd class='attribuut'><input name="Plaatsen" type="number" min='1' required step="1"></dd>
+
+	<dt><input type="submit" value="Reserveren"></dt>
+	</dl>
 	</form>
 	
 </body>

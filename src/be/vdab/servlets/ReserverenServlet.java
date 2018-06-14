@@ -2,12 +2,14 @@ package be.vdab.servlets;
 
 import java.io.IOException;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
 
 import be.vdab.entities.Voorstelling;
 import be.vdab.repositories.CultuurhuisRepository;
@@ -24,32 +26,39 @@ public class ReserverenServlet extends HttpServlet {
 	//private static final String VIEW_GERESERVEERD = "/WEB-INF/JSP/reservatiemandje.jsp";
 	private CultuurhuisRepository cultuurhuisRepository = new CultuurhuisRepository();
 	
-
+	@Resource(name = CultuurhuisRepository.JNDI_NAME)
+	void setDataSource(DataSource dataSource) {
+		cultuurhuisRepository.setDataSource(dataSource);
+	}
+		
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Voorstelling voorstelling = new Voorstelling();
 		if (StringUtiles.isLong(request.getParameter("id"))) {
-			String id = request.getParameter("id");
-			Long voorstellingid = Long.parseLong(id);
+			Long voorstellingid = Long.parseLong((request.getParameter("id")));
 			voorstelling = cultuurhuisRepository.getVoorstelling(voorstellingid);
 			if (voorstelling != null) {
-				HttpSession session = request.getSession();
-				session.setAttribute("voorstellingid", voorstelling.getId());
+	//			HttpSession session = request.getSession();
+	//			session.setAttribute("voorstellingid", voorstelling.getId());
 				request.setAttribute("voorstelling", voorstelling);
 				request.getRequestDispatcher(VIEW).forward(request, response);
+			} else {
+				request.setAttribute("fout", "voorstellingsid is niet correct");
+				request.getRequestDispatcher(VIEW_SLECHTE_ID).forward(request, response);
 			}
+		} else {
+			request.setAttribute("fout", "voorstellingsid is niet correct");
+			request.getRequestDispatcher(VIEW_SLECHTE_ID).forward(request, response);
 		}
-		request.setAttribute("fout", "voorstellingsid is niet correct");
-		request.getRequestDispatcher(VIEW_SLECHTE_ID).forward(request, response);
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (request.getParameter("plaatsen") != null) {
+		if (request.getParameter("reserveren")!=null) {
 			reserveren(request, response);
 		}
 	}
