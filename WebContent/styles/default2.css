@@ -28,3 +28,7 @@ tbody.zebra tr:nth-child(even) {
 td.vrijeplaatsen {
 	text-align: right;
 }
+
+td.checkbox {
+	text-align :center;
+}

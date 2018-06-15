@@ -14,7 +14,8 @@ import javax.sql.DataSource;
 import be.vdab.entities.Genre;
 import be.vdab.entities.Voorstelling;
 import be.vdab.repositories.CultuurhuisRepository;
-import util.*;
+import util.StringUtiles;
+import util.Util;
 
 
 /**
@@ -46,6 +47,9 @@ public class IndexServlet extends HttpServlet {
 			for (Genre genre:setGenres) {
 				if (genre.getId()==Long.parseLong(id)) {
 					request.setAttribute("genrenaam", genre.getNaam());
+					if (request.getSession(false)!=null) {
+						request.setAttribute("session", true);
+					}
 				}
 			}
 		} else {

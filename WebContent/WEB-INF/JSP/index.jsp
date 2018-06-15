@@ -14,6 +14,11 @@
 			src='<c:url value="/images/voorstellingen.png"/>'
 			alt='voorstellingen' />
 	</H1>
+	<c:if test="${not empty session}">
+		<a href='/cultuurhuis/reservatiemandje'>reservatiemandje</a>
+		<a href='/cultuurhuis/bevestigingreservatie'>Bevestiging
+			reservatie</a>
+	</c:if>
 	<h2>Genres</h2>
 	<c:forEach var='genre' items='${genres}'>
 		<c:url value='/index.htm' var='genresURL'>
@@ -36,15 +41,18 @@
 			</thead>
 			<tbody class='zebra'>
 				<c:forEach var="voorstelling" items="${setvoorstellingengenre}">
-					<fmt:parseDate value='${voorstelling.datum}' type='both' pattern="yyyy-MM-dd'T'HH:mm" var="datumAlsDate"/>
+					<fmt:parseDate value='${voorstelling.datum}' type='both'
+						pattern="yyyy-MM-dd'T'HH:mm" var="datumAlsDate" />
 					<c:url value='/reserveren' var='reserverenURL'>
 						<c:param name='id' value='${voorstelling.id}' />
 					</c:url>
 					<tr>
-						<td><fmt:formatDate value='${datumAlsDate}' type='both' pattern='d-MM-yy HH:mm'/></td>
+						<td><fmt:formatDate value='${datumAlsDate}' type='both'
+								pattern='d-MM-yy HH:mm' /></td>
 						<td>${voorstelling.titel}</td>
 						<td>${voorstelling.uitvoerders}</td>
-						<td><fmt:formatNumber value='${voorstelling.prijs}' type='currency' currencySymbol="€"/></td>
+						<td><fmt:formatNumber value='${voorstelling.prijs}'
+								type='currency' currencySymbol="€" /></td>
 						<td class='vrijeplaatsen'>${voorstelling.aantalVrijePlaatsen}</td>
 						<td><a href="${reserverenURL}">Reserveren</a></td>
 					</tr>
@@ -53,7 +61,8 @@
 		</table>
 	</c:if>
 	<c:if test="${empty setvoorstellingengenre and not empty param.id}">
-		<h2>Er zijn geen voorstellingen van het genre ${genrenaam} gepland op dit ogenblik</h2>
+		<h2>Er zijn geen voorstellingen van het genre ${genrenaam}
+			gepland op dit ogenblik</h2>
 	</c:if>
 </body>
 </html>
