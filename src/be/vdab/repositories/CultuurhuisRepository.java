@@ -30,7 +30,7 @@ public class CultuurhuisRepository extends AbstractRepository {
 			+ "set vrijeplaatsen = vrijeplaatsen-? where ( vrijeplaatsen>=? and id=?)";
 
 	private static final String SELECT_KLANTEN_GEBRUIKERSNAAM = "select id, voornaam, familienaam, straat, "
-			+ "huinr, postcode, gemeente, gebruikersnaam, paswoord from klanten where gebruikersnaam=?";
+			+ "huisnr, postcode, gemeente, gebruikersnaam, paswoord from klanten where gebruikersnaam=?";
 	private static final String INSERT_KLANT = "insert into klanten "
 			+ "(voornaam, familienaam, straat, huisnr, postcode, gemeente, gebruikersnaam, paswoord) "
 			+ "values (?,?,?,?,?,?,?,?)";
@@ -181,7 +181,7 @@ public class CultuurhuisRepository extends AbstractRepository {
 						statement2.setString(6, klant.getGemeente());
 						statement2.setString(7, klant.getGebruikersnaam());
 						statement2.setString(8, klant.getPaswoord());
-						statement2.executeQuery();
+						statement2.execute();
 						connection.commit();
 						return true;
 					}

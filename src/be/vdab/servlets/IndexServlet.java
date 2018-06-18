@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
 import be.vdab.entities.Genre;
@@ -39,6 +40,11 @@ public class IndexServlet extends HttpServlet {
 	Set<Genre> setGenres = cultuurhuisRepository.getGenres();
 	request.setAttribute("genres", setGenres);
 	
+	HttpSession session = request.getSession(false);
+	if (session!=null) {
+		request.setAttribute("session", true);
+	}
+	
 	String id = request.getParameter("id");
 	if (id!=null) {
 		if (StringUtiles.isLong(id)) {
@@ -47,9 +53,6 @@ public class IndexServlet extends HttpServlet {
 			for (Genre genre:setGenres) {
 				if (genre.getId()==Long.parseLong(id)) {
 					request.setAttribute("genrenaam", genre.getNaam());
-					if (request.getSession(false)!=null) {
-						request.setAttribute("session", true);
-					}
 				}
 			}
 		} else {

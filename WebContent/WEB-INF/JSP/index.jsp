@@ -15,7 +15,7 @@
 			alt='voorstellingen' />
 	</H1>
 	<c:if test="${not empty session}">
-		<a href='/cultuurhuis/reservatiemandje'>reservatiemandje</a>
+		<a href='/cultuurhuis/reservatiemandje'>Reservatiemandje</a>
 		<a href='/cultuurhuis/bevestigingreservatie'>Bevestiging
 			reservatie</a>
 	</c:if>
@@ -54,7 +54,7 @@
 						<td><fmt:formatNumber value='${voorstelling.prijs}'
 								type='currency' currencySymbol="€" /></td>
 						<td class='vrijeplaatsen'>${voorstelling.aantalVrijePlaatsen}</td>
-						<td><a href="${reserverenURL}">Reserveren</a></td>
+						<td><c:if test="${voorstelling.aantalVrijePlaatsen>0}"><a href="${reserverenURL}">Reserveren</a></c:if></td>
 					</tr>
 				</c:forEach>
 			</tbody>

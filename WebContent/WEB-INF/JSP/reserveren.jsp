@@ -25,7 +25,7 @@
 				<dt>Uitvoerders:</dt>
 				<dd class='attribuut'>${voorstelling.uitvoerders}</dd>
 
-				<dt>Datum</dt>
+				<dt>Datum:</dt>
 				<fmt:parseDate value='${voorstelling.datum}' type='both'
 					pattern="yyyy-MM-dd'T'HH:mm" var="datumAlsDate" />
 				<dd class='attribuut'>
@@ -45,7 +45,7 @@
 
 				<dt>Plaatsen:</dt>
 				<dd class='attribuut'>
-					<input name="plaatsen" type="number" required min='1' step="1" placeholder="${plaatsenEerdereReservatie}">
+					<input name="plaatsen" type="text" value="${gereserveerdeplaatsen}">
 				</dd>
 
 				<dt>

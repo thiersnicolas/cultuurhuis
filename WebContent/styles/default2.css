@@ -1,11 +1,35 @@
+
+dd {
+	margin-left: 0;
+}
+
 dd.attribuut {
 	font-weight: bold;
 	margin-left: 0;
 	margin-bottom: 1em;
 }
 
+dd.klantattribuut {
+	margin-left: 0;
+	margin-bottom: 1em;
+}
+
 input[type=number]{
     width: 45px;
+}
+
+input.reservatie{
+	width: 90px;
+	margin-bottom: 0.5em;
+
+}
+
+input#gebruikersnaam{
+	width: 120px;
+}
+
+input#paswoord{
+	width: 110px;
 }
 
 table.voorstellingen {
@@ -31,4 +55,12 @@ td.vrijeplaatsen {
 
 td.checkbox {
 	text-align :center;
+}
+
+p#gebruiker{
+	font-weight: bold;
+}
+
+ul {
+	list-style-type: square;
 }

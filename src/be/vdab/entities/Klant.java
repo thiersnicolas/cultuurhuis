@@ -17,7 +17,7 @@ public Klant() {}
 /***
 	vanuit db
 */
-private Klant(long id, String familienaam, String voornaam, String straat, String huisnr, String postcode, String gemeente,
+private Klant(long id, String voornaam, String familienaam, String straat, String huisnr, String postcode, String gemeente,
 		String gebruikersnaam, String paswoord) {
 	this.id = id;
 	this.voornaam = voornaam;

@@ -41,24 +41,20 @@ public class ReserverenServlet extends HttpServlet {
 			throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
 
-		if (session != null) {
-			request.setAttribute("eerdereReservatie", true);
-		}
-
 		if (StringUtiles.isLong(request.getParameter("id"))) {
 			Voorstelling voorstelling;
 			Long voorstellingid = Long.parseLong((request.getParameter("id")));
 			voorstelling = cultuurhuisRepository.getVoorstelling(voorstellingid);
 			if (voorstelling.getTitel() != null) {
 				request.setAttribute("voorstelling", voorstelling);
-				request.getRequestDispatcher(VIEW).forward(request, response);
 				if (session != null) {
 					@SuppressWarnings({ "unchecked" })
 					Map<Long, Long> mandje = (Map<Long, Long>) session.getAttribute(MANDJE);
 					if (mandje.containsKey(voorstellingid)) {
-						request.setAttribute("plaatsenEerdereReservatie", mandje.get(voorstellingid));
+						request.setAttribute("gereserveerdeplaatsen", mandje.get(voorstellingid));
 					}
 				}
+				request.getRequestDispatcher(VIEW).forward(request, response);
 			} else {
 				request.setAttribute("foutid", "voorstellingsid is niet correct");
 				request.getRequestDispatcher(VIEW).forward(request, response);
